@@ -1,0 +1,114 @@
+//Продукт
+class Product
+{
+  private $name;
+  private $calories;
+  private $squirrels;
+  private $fats;
+  private $carbohydrates;
+  private $defaultWeight;
+
+  //Внутри функции значения этих аргументов присваиваются соответствующим свойствам класса с помощью ключевого слова $this, которое ссылается на текущий объект. 
+  //Это позволяет объекту сохранять значения этих свойств и делать их доступными для использования в другом месте программы.
+  public function __construct($name, $calories, $squirrels, $fats, $carbohydrates, $defaultWeight)
+  {
+    $this->name = $name;
+    $this->calories = $calories;
+    $this->squirrels = $squirrels;
+    $this->fats = $fats;
+    $this->carbohydrates = $carbohydrates;
+    $this->defaultWeight = $defaultWeight;
+  }
+  //Далее идут функции, которые возвращают значения по умолчанию объекта, используя "$this" для ссылки на текущий объект.
+  public function getName()
+  {
+    return $this->name;
+  }
+  
+  public function getCalories()
+  {
+    return $this->calories;
+  }
+  
+  public function getSquirrels()
+  {
+    return $this->squirrels;
+  }
+  
+  public function getFats()
+  {
+    return $this->fats;
+  }
+  
+  public function getCarbohydrates()
+  {
+    return $this->carbohydrates;
+  }
+  
+  public function getDefaultWeight()
+  {
+    return $this->defaultWeight;
+  }
+}
+
+class ProductRepository
+{
+  private $products = [];
+  //Метод "add" принимает объект "Product" в качестве аргумента и добавляет его в массив продуктов, хранящихся в свойстве "$products". 
+  //Объект "Product" индексируется по его имени, чтобы позже вы могли извлечь его с помощью метода "get"
+  public function add(Product $product)
+  {
+    $this->products[$product->getName()] = $product;
+  }
+  //Метод "get" принимает название продукта в качестве аргумента и возвращает соответствующий объект "Product" из массива "$products", если он существует. 
+  //Если продукт с указанным именем не найден, метод возвращает значение "null".
+  public function get($name)
+  {
+    return isset($this->products[$name]) ? $this->products[$name] : null;
+  }
+}
+
+class CalorieCounter
+{
+  private $productRepository;
+  private $eatenProducts = [];
+  
+  public function __construct(ProductRepository $productRepository)
+  {
+    $this->productRepository = $productRepository;
+  }
+  //Вычисляет вес порции на основе веса продукта по умолчанию и количества порций и сохраняет эту информацию в массиве с именем "$eatenProducts".
+  //Если объект "Product" не найден в "ProductRepository", метод "eaten" выдает исключение с сообщением "Недопустимое название продукта".
+  public function eaten($name, $portions)
+  {
+    $product = $this->productRepository->get($name);
+    if ($product === null) {
+      throw new Exception("Invalid product name");
+    }
+    
+    $weight = $portions * $product->getDefaultWeight();
+    $this->eatenProducts[] = [
+      'product' => $product,
+      'weight' => $weight
+    ];
+  }
+  //Метод "getCalories" выполняет итерацию по массиву продуктов "$eaten"
+ // И вычисляет общее количество калорий путем суммирования калорий в каждой порции продукта. 
+  public function getCalories()
+  {
+    $calories = 0;
+    foreach ($this->eatenProducts as $eatenProduct) {
+      $calories += $eatenProduct['product']->getCalories() * $eatenProduct['weight'] / 100;
+    }
+    return $calories;
+  }
+  //Метод "getSquirrels" работает аналогично методу "getCalories", выполняя итерацию по массиву "$eatenProducts"
+  //И вычисляя общее количество белков путем суммирования белков в каждой порции пищи.
+  public function getSquirrels()
+  {
+    $squirrels = 0;
+    foreach ($this->eatenProducts as $eatenProduct) {
+      $squirrels += $eatenProduct['product']->getSquirrels() * $eatenProduct['weight'] / 100;
+    }
+    return $squirrels;
+ 
